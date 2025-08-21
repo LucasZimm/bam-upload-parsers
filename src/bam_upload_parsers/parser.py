@@ -1490,6 +1490,7 @@ print("end")
 
 from bam_masterdata.metadata.entities import CollectionType
 
+"""
 print("1")
 nmrparser = NMRParser()
 coll = CollectionType()
@@ -1503,3 +1504,4 @@ nmrparser.parse(
 print(coll.attached_objects)
 
 print("end")
+"""
