@@ -26,6 +26,8 @@ maintainers = [
 license = { file = "LICENSE" }
 dependencies = [
   "bam-masterdata>=0.6.2",
+  "nmrglue",
+  "numpy<2.0"
 ]
 
 [project.urls]
@@ -124,7 +126,7 @@ package-dir = { "" = "src" }
 where = ["src"]
 
 [tool.setuptools_scm]
-write_to = "src/masterdata_parser_example/_version.py"
+write_to = "src/bam_upload_parsers/_version.py"
 
 [project.entry-points."bam.parsers"]
-masterdata_parser_example_entry_point = "masterdata_parser_example:masterdata_parser_example_entry_point"
+masterdata_parser_example_entry_point = "bam_upload_parsers:masterdata_parser_example_entry_point"
