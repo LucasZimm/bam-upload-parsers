@@ -12,16 +12,17 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
-name = "masterdata-parser-example"
-description = "An example parser for openBIS using the bam-masterdata interface."
+name = "bam-upload-parsers"
+description = "Repo for restructuring the parsers from bam-upload-helper"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
+  { name = "Bastian Ruehle", email = "bastian.ruehle@bam.de"},
   { name = "BAM Data Store", email = "datastore@bam.de" },
 ]
 maintainers = [
-  { name = "Jose M. Pizarro", email = "jose.pizarro-blanco@bam.de" },
+  { name = "Lucas Zimmermann ", email = "lucas.zimmermann@bam.de" },
 ]
 license = { file = "LICENSE" }
 dependencies = [
@@ -31,8 +32,8 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/BAMresearch/masterdata-parser-example"
-"Bug Tracker" = "https://github.com/BAMresearch/masterdata-parser-example/issues"
+"Homepage" = "https://github.com/LucasZimm/bam-upload-parsers"
+"Bug Tracker" = "https://github.com/LucasZimm/bam-upload-parsers/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -45,7 +46,7 @@ dev = [
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-include = ["src/masterdata_parser_example/*.py", "tests/*.py"]
+include = ["src/bam_upload_parsers/*.py", "tests/*.py"]
 exclude = [
     ".bzr",
     ".direnv",
