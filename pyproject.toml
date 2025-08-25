@@ -18,10 +18,14 @@ dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-  { name = "Bastian Ruehle", email = "bastian.ruehle@bam.de"},
-  { name = "BAM Data Store", email = "datastore@bam.de" },
+  { name = "Bastian Rühle", email = "bastian.ruehle@bam.de" },
+  { name = "Ingo Breßler", email = "ingo.bressler@bam.de" },
+  { name = "Jose M. Pizarro", email = "jose.pizarro-blanco@bam.de" },
 ]
 maintainers = [
+  { name = "Bastian Rühle", email = "bastian.ruehle@bam.de" },
+  { name = "Ingo Breßler", email = "ingo.bressler@bam.de" },
+  { name = "Jose M. Pizarro", email = "jose.pizarro-blanco@bam.de" },
   { name = "Lucas Zimmermann ", email = "lucas.zimmermann@bam.de" },
 ]
 license = { file = "LICENSE" }

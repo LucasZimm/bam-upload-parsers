@@ -4,7 +4,7 @@
 # Maintainer:       Lucas Zimmermann
 # Email:            lucas.zimmermann@bam.de
 # Version:          2.0.0 not sure
-# Created:          2024 (by Bastian Ruehle)
+# Created:          2024 (by Bastian Ruehle and Ingo Breßler)
 # Modified:         2025 (by Lucas Zimmermann)
 #
 # Copyright (c) 2024, Bastian Ruehle,
@@ -368,14 +368,6 @@ class DLSParser(AbstractParser):
         collection.add(dls)
 
 
-# -*- coding: utf-8 -*-
-# @author:      "Bastian Ruehle"
-# @copyright:   "Copyright 2024, Bastian Ruehle, Federal Institute for Materials Research and Testing (BAM)"
-# @version:     "1.0.0"
-# @maintainer:  "Bastian Ruehle"
-# @email        "bastian.ruehle@bam.de"
-
-
 class SEMParser(AbstractParser):
     def parse(self, files, collection, logger):
         """
@@ -572,12 +564,6 @@ class TEMParser(AbstractParser):
     def parse(
         self, files: list[str], collection: CollectionType, logger: BoundLoggerLazyProxy
     ) -> None:
-        # -*- coding: utf-8 -*-
-        # @author:      "Bastian Ruehle"
-        # @copyright:   "Copyright 2024, Bastian Ruehle, Federal Institute for Materials Research and Testing (BAM)"
-        # @version:     "1.0.0"
-        # @maintainer:  "Bastian Ruehle"
-        # @email        "bastian.ruehle@bam.de"
         """
         Parse TEM images saved in dm3, emd, or tif file format
 
