@@ -12,24 +12,23 @@
 # Copyright (c) 2025, BAM
 #
 
-
+import codecs
 import json
 import math
 import os.path
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Union
+from typing import Dict, List, Optional, Tuple, Union
 
+import _dm3_lib_modified as dm3
 import h5py
 import nmrglue as ng
 import numpy as np
-from bam_masterdata.datamodel.object_types import Dls, Nmr, Sem, Tem
+from bam_masterdata.datamodel.object_types import Dls, Ftir, Nmr, Sem, Tem
 from bam_masterdata.logger import logger
 from bam_masterdata.metadata.entities import CollectionType
 from bam_masterdata.parsing import AbstractParser
 from structlog._config import BoundLoggerLazyProxy
-
-import bam_upload_parsers._dm3_lib_modified as dm3
 
 
 # help functions for mapping metadata to masterdata object types
@@ -51,7 +50,7 @@ def metadata_to_masterdata(metadata: dict, object_instance):
     return object_prop_list
 
 
-class DSLParser(AbstractParser):
+class DLSParser(AbstractParser):
     def parse(self, files, collection, logger):
         """
         Parse ASCII files exported from DLS measurements.
@@ -364,7 +363,8 @@ class DSLParser(AbstractParser):
             metadata[f"DLS.PK{i + 1}ZETA"] = round(zeta_potentials[i], 2)
             metadata[f"DLS.PK{i + 1}ZETAWIDTH"] = round(zeta_widths[i], 2)
 
-        print(metadata)
+        dls = metadata_to_instance(metadata, Dls())
+        collection.add(dls)
 
 
 # -*- coding: utf-8 -*-
@@ -1362,7 +1362,7 @@ class NMRParser(AbstractParser):
                     "CD2Cl2" in metadata["NMR.SOLVENT"].upper()
                     or "dcm" in metadata["NMR.SOLVENT"].lower()
                 ):
-                    metadata["NMR.SOLVENT"] = "NMR_SOL_CD2Cl2"
+                    metadata["NMR.SOLVENT"] = "NMR_SOL_CD2CL2"
                 elif (
                     "D2O" in metadata["NMR.SOLVENT"].upper()
                     or "water" in metadata["NMR.SOLVENT"].lower()
@@ -1452,56 +1452,206 @@ class NMRParser(AbstractParser):
             collection.add(nmr)
 
 
-"""
-from bam_masterdata.metadata.entities import CollectionType
+class IRParser(AbstractParser):
+    def parse(
+        self,
+        files: list[str],
+        collection: CollectionType,
+        logger,
+    ) -> None:
+        """
+        Parse ASCII files exported from IR measurements.
 
-print("1")
-semparser = SEMParser()
-coll = CollectionType()
-semparser.parse(
-    [
-        "C:\\Users\\lzimmer1\\Documents\\Example_Files\\SEM\\2106696.tif",
-        "C:\\Users\\lzimmer1\\Documents\\Example_Files\\SEM\\2106697.tif",
-    ],
-    coll,
-    logger,
-)
-print(coll.attached_objects)
+        Parameters
+        ----------
+        files: Union[list, tuple]
+            The list of files that are being parsed.
+        create_preview: bool = True
+            If set to True, a preview image is created in the same folder as the parsed files. Default is True.
 
-print("end")
-"""
-"""
-from bam_masterdata.metadata.entities import CollectionType
+        Returns
+        -------
+        dict[str, Union[str, float, int]]
+            The dictionary with the parsed metadata.
+        """
 
-print("1")
-temparser = TEMParser()
-coll = CollectionType()
-temparser.parse(
-    [
-        "C:\\Users\\lzimmer1\\Documents\\Example_Files\\TEM\\8_bit_tif_0011 - MZ208 20240916 Ceta 58000 x Ceta.tif",
-    ],
-    coll,
-    logger,
-)
-print(coll.attached_objects)
+        for i in files:
+            filename_spa_list = []
+            filename_csv_list = []
+            if i.lower().endswith(".spa"):
+                filename_spa_list.append(i)
+            elif i.lower().endswith(".csv"):
+                filename_csv_list.append(i)
 
-print("end")
-"""
+        if len(filename_spa_list) == 0:
+            return
 
-from bam_masterdata.metadata.entities import CollectionType
+        for filename_spa in filename_spa_list:
+            metadata: dict[str, str | float | int] = {}
+            fc = [i for i in open(filename_spa, "rb")]
+            for i, l in enumerate(fc):
+                if b"Background gemessen am " in l:
+                    metadata["START_DATE"] = datetime.strftime(
+                        datetime.strptime(
+                            l[l.find(b" am  ") + 8 : l.find(b" (GMT")].decode(),
+                            "%b %d %H:%M:%S %Y",
+                        ),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                    tmp = (
+                        fc[i + 2][fc[i + 2].find(b":\t ") + 3 : fc[i + 2].find(b"\r\n")]
+                        .decode()
+                        .replace(",", ".")
+                        .split(" ")
+                    )
+                    metadata["FTIR.RESOLUTION"] = int(float(tmp[0]))
+                    metadata["FTIR.START_WAVENUMBER"] = float(tmp[2])
+                    metadata["FTIR.END_WAVENUMBER"] = float(tmp[4])
+                    metadata["FTIR.INSTRUMENT"] = fc[i + 3][
+                        fc[i + 3].find(b": ") + 2 : fc[i + 3].find(b"\r\n")
+                    ].decode()
+                    metadata["FTIR.ACCESSORY"] = "FTIR_ACCESSORY_GOLDEN_GATE"
 
-"""
-print("1")
-nmrparser = NMRParser()
-coll = CollectionType()
-nmrparser.parse(
-    [
-        "C:\\Users\\lzimmer1\\Documents\\Example_Files\\NMR\\CB032_FID_H_avg.jdx",
-    ],
-    coll,
-    logger,
-)
-print(coll.attached_objects)
+            ftir = metadata_to_instance(metadata, Ftir())
+            collection.add(ftir)
 
-print("end")
-"""
+
+class PlateReaderParser(AbstractParser):
+    def parse(
+        self, files: list[str], collection: CollectionType, logger: BoundLoggerLazyProxy
+    ) -> None:
+        """
+        Parse ASCII files exported from Spectramax measurements.
+
+        Parameters
+        ----------
+        files: Union[list, tuple]
+            The list of files that are being parsed.
+        create_preview: bool = True
+            If set to True, a preview image is created in the same folder as the parsed files. Default is True.
+
+        Returns
+        -------
+        dict[str, Union[str, float, int]]
+            The dictionary with the parsed metadata.
+        """
+        for file in files:
+            if file.endswith(".txt"):
+                break
+        else:
+            return {}
+
+        metadata: dict[str, str | float | int] = {}
+
+        fc = [
+            i.replace("\r", "").replace("\n", "").split("\t")
+            for i in codecs.open(file, "r", "utf-16-le")
+        ]
+        tmp = 0
+        x_data: (
+            list[float]
+            | list[str]
+            | list[list[float]]
+            | list[list[str]]
+            | list[np.ndarray]
+        ) = []
+        y_data: list[float] | list[list[float]] | list[np.ndarray] = []
+        legends = []
+        titles = []
+
+        for i, l in enumerate(fc):
+            if isinstance(l, list) and len(l) > 0 and l[0] == "Plate:":
+                tmp += 1
+
+                if l[5] == "Absorbance":
+                    offset = 0
+                elif l[5] == "Fluorescence":
+                    offset = 1
+
+                metadata["PLATEREADER.READ_TYPE"] = l[4]  # Endpoint, Spectrum
+                metadata["PLATEREADER.READ_MODE"] = l[
+                    5
+                ]  # Absorbance, Fluorescence, Luminsecence
+                metadata["PLATEREADER.NUMBER_OF_WELLS"] = l[18 + offset]
+
+                if l[4] == "Spectrum":
+                    if l[5] == "Absorbance":
+                        metadata["PLATEREADER.ABSORBANCE_START_WAVELENGTH"] = float(
+                            l[11]
+                        )
+                        metadata["PLATEREADER.ABSORBANCE_END_WAVELENGTH"] = float(l[12])
+                        metadata["PLATEREADER.ABSORBANCE_RESOLUTION"] = float(l[13])
+                        titles.append("Absorbance Spectrum\n")
+                    elif l[5] == "Fluorescence":
+                        metadata["PLATEREADER.SPECTRUM_TYPE"] = l[23]
+                        if l[23] == "Excitation Sweep":
+                            metadata["PLATEREADER.EMISSION_WAVELENGTH"] = float(l[24])
+                            metadata["PLATEREADER.EXCITATION_START_WAVELENGTH"] = float(
+                                l[12]
+                            )
+                            metadata["PLATEREADER.EXCITATION_END_WAVELENGTH"] = float(
+                                l[13]
+                            )
+                            metadata["PLATEREADER.EXCITATION_RESOLUTION"] = float(l[14])
+                            titles.append(
+                                f"Excitation Spectrum\nEm.: {float(l[24])} nm"
+                            )
+                        elif l[23] == "Emission Sweep":
+                            metadata["PLATEREADER.EXCITATION_WAVELENGTH"] = float(l[24])
+                            metadata["PLATEREADER.EMISSION_START_WAVELENGTH"] = float(
+                                l[12]
+                            )
+                            metadata["PLATEREADER.EMISSION_END_WAVELENGTH"] = float(
+                                l[13]
+                            )
+                            metadata["PLATEREADER.EMISSION_RESOLUTION"] = float(l[14])
+                            titles.append(f"Emission Spectrum\nEx.: {float(l[24])} nm")
+                    j = i + 1
+                    tmp_x = []
+                    tmp_y = []
+                    legends.append(
+                        [fc[j][k] for k in range(2, len(fc[j])) if fc[j + 1][k] != ""]
+                    )
+                    j += 1
+                    while fc[j][0] != "":
+                        tmp_x.append(float(fc[j][0]))
+                        tmp_y.append(
+                            np.array(
+                                [float(k) for k in fc[j][2:] if k != ""],
+                                dtype="float32",
+                            )
+                        )
+                        j += 1
+                    x_data.append(np.array(tmp_x))
+                    y_data.append(np.array(tmp_y))
+                elif l[4] == "Endpoint":
+                    if l[5] == "Absorbance":
+                        metadata["PLATEREADER.ABSORBANCE_WAVELENGTH"] = float(l[15])
+                        titles.append(
+                            f"Absorbance Measurement\nAbs.: {float(l[15])} nm"
+                        )
+                    elif l[5] == "Fluorescence":
+                        metadata["PLATEREADER.EMISSION_WAVELENGTH"] = float(l[16])
+                        metadata["PLATEREADER.EXCITATION_WAVELENGTH"] = float(l[20])
+                        titles.append(
+                            f"Fluorescence Measurement\nEx.: {float(l[20])} nm, Em.: {float(l[16])} nm"
+                        )
+                    j = i + 1
+                    x_data.append(
+                        [
+                            fc[j][k]
+                            for k in range(2, len(fc[j]))
+                            if fc[j + 1][k] != "" and fc[j + 1][k] != "#SAT"
+                        ]
+                    )
+                    j += 1
+                    y_data.append(
+                        np.array(
+                            [float(k) for k in fc[j][2:] if k != "" and k != "#SAT"],
+                            dtype="float32",
+                        )
+                    )
+                    legends.append([])
+        # TODO find platereader class or add in bam masterdata
+        # platereader = metadata_to_instance(metadata, PlateReader())
+        # collection.add(platereader)

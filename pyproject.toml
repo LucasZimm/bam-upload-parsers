@@ -129,4 +129,9 @@ where = ["src"]
 write_to = "src/bam_upload_parsers/_version.py"
 
 [project.entry-points."bam.parsers"]
-masterdata_parser_example_entry_point = "bam_upload_parsers:masterdata_parser_example_entry_point"
+sem_parser_entry_point = "bam_upload_parsers:sem_parser_entry_point"
+plate_reader_parser_entry_point = "bam_upload_parsers:plate_reader_parser_entry_point"
+ir_parser_entry_point = "bam_upload_parsers:ir_parser_entry_point"
+nmr_parser_entry_point = "bam_upload_parsers:nmr_parser_entry_point"
+tem_parser_entry_point = "bam_upload_parsers:tem_parser_entry_point"
+dls_parser_entry_point = "bam_upload_parsers:dls_parser_entry_point"
