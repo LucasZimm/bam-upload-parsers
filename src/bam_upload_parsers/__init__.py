@@ -1,11 +1,9 @@
-from .parser import (
-    DLSParser,
-    IRParser,
-    NMRParser,
-    PlateReaderParser,
-    SEMParser,
-    TEMParser,
-)
+from .DLSParser import DLSParser
+from .IRParser import IRParser
+from .NMRParser import NMRParser
+from .PlateReaderParser import PlateReaderParser
+from .SEMParser import SEMParser
+from .TEMParser import TEMParser
 
 # Add more metadata if needed
 sem_parser_entry_point = {
