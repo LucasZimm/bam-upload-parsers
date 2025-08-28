@@ -28,7 +28,8 @@ from bam_masterdata.logger import logger
 from bam_masterdata.metadata.entities import CollectionType
 from bam_masterdata.parsing import AbstractParser
 from structlog._config import BoundLoggerLazyProxy
-from utils import metadata_to_instance
+
+from .utils import metadata_to_instance
 
 
 class NMRParser(AbstractParser):

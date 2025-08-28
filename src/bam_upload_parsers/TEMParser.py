@@ -20,7 +20,6 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Union
 
-import _dm3_lib_modified as dm3
 import h5py
 import nmrglue as ng
 import numpy as np
@@ -29,7 +28,9 @@ from bam_masterdata.logger import logger
 from bam_masterdata.metadata.entities import CollectionType
 from bam_masterdata.parsing import AbstractParser
 from structlog._config import BoundLoggerLazyProxy
-from utils import metadata_to_instance
+
+from . import _dm3_lib_modified as dm3
+from .utils import metadata_to_instance
 
 
 class TEMParser(AbstractParser):
@@ -554,7 +555,9 @@ class TEMParser(AbstractParser):
                 metadatas.append(
                     extract_metadata_tif(file, metadata, preview_image_list)
                 )
-        for metadata[0] in metadatas:
+        for metadata in metadatas:
+            if isinstance(metadata, tuple):
+                metadata = metadata[0]
             metadata = get_metadata_for_openbis(metadata)
             if metadata != {}:
                 try:

@@ -28,7 +28,8 @@ from bam_masterdata.logger import logger
 from bam_masterdata.metadata.entities import CollectionType
 from bam_masterdata.parsing import AbstractParser
 from structlog._config import BoundLoggerLazyProxy
-from utils import metadata_to_instance
+
+from .utils import metadata_to_instance
 
 
 class IRParser(AbstractParser):
@@ -54,10 +55,9 @@ class IRParser(AbstractParser):
         -------
         None
         """
-
+        filename_spa_list = []
+        filename_csv_list = []
         for i in files:
-            filename_spa_list = []
-            filename_csv_list = []
             if i.lower().endswith(".spa"):
                 filename_spa_list.append(i)
             elif i.lower().endswith(".csv"):
@@ -65,7 +65,6 @@ class IRParser(AbstractParser):
 
         if len(filename_spa_list) == 0:
             return
-
         for filename_spa in filename_spa_list:
             metadata: dict[str, str | float | int] = {}
             fc = [i for i in open(filename_spa, "rb")]
