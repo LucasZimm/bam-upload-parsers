@@ -19,7 +19,8 @@ from bam_masterdata.datamodel.object_types import Dls
 from bam_masterdata.logger import logger
 from bam_masterdata.metadata.entities import CollectionType
 from bam_masterdata.parsing import AbstractParser
-from utils import metadata_to_instance
+
+from .utils import metadata_to_instance
 
 
 class DLSParser(AbstractParser):

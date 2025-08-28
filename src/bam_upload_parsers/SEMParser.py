@@ -224,7 +224,6 @@ class SEMParser(AbstractParser):
         for metadata in metadatas:
             metadata = get_metadata_for_openbis(metadata)
             if metadata != {}:
-                # print(metadata)
                 sem = metadata_to_instance(
                     metadata,
                     Sem(),
