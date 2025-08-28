@@ -1,16 +1,15 @@
 # -----------------------------------------------------------------------------
-# File:        parsers.py
+# File:        IRparser.py
 # Original Author:  Bastian Ruehle
-# Maintainer:       Lucas Zimmermann
-# Email:            lucas.zimmermann@bam.de
-# Version:          2.0.0 not sure
+# Maintainer:       Bastian Ruehle, Jose M. Pizarro, Lucas Zimmermann
+# Email:            bastian.ruehle@bam.de, jose.pizarro-blanco@bam.de, lucas.zimmermann@bam.de
 # Created:          2024 (by Bastian Ruehle and Ingo Breßler)
 # Modified:         2025 (by Lucas Zimmermann)
 #
 # Copyright (c) 2024, Bastian Ruehle,
 # Federal Institute for Materials Research and Testing (BAM)
-# Copyright (c) 2025, BAM
-#
+# Copyright (c) 2025, BAMResearch
+
 
 import codecs
 import json
